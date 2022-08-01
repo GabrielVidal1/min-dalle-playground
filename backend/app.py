@@ -34,32 +34,32 @@ def generate_images_api():
     json_data = request.get_json(force=True)
 
     prompt = json_data["text"]
-    image_count = json_data["num_images"]
+    grid_size = json_data["num_images"]
 
-    generated_imgs = dalle_model.generate_images(
+    generated_imgage = dalle_model.generate_images(
         text=prompt,
         seed=-1,
-        image_count=image_count,
-        temperature=1,
-        top_k=256,
-        supercondition_factor=16,
-        is_verbose=True
+        grid_size=grid_size,
+        # temperature=1,
+        # top_k=256,
+        # supercondition_factor=16,
+        # is_verbose=True
     )
 
     returned_generated_images = []
 
-    dir_name = os.path.join(args.output_dir,f"{time.strftime('%Y-%m-%d_%H:%M:%S')}_{prompt}")
-    Path(dir_name).mkdir(parents=True, exist_ok=True)
+    # dir_name = os.path.join(args.output_dir,f"{time.strftime('%Y-%m-%d_%H-%M-%S')}_{prompt}")
+    # Path(dir_name).mkdir(parents=True, exist_ok=True)
     
-    for idx, img in enumerate(generated_imgs):
-        img.save(os.path.join(dir_name, f'{idx}.{args.img_format}'), format=args.img_format)
+    # for _idx, img in enumerate(generated_imgs):
+        # img.save(os.path.join(dir_name, f'{idx}.{args.img_format}'), format=args.img_format)
 
-        buffered = BytesIO()
-        img.save(buffered, format=args.img_format)
-        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-        returned_generated_images.append(img_str)
+    buffered = BytesIO()
+    generated_imgage.save(buffered, format=args.img_format)
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    returned_generated_images.append(img_str)
 
-    print(f"Created {image_count} images from text prompt [{prompt}]")
+    print(f"Created {grid_size ** 2} images from text prompt [{prompt}]")
     
     response = {
         'generatedImgs': returned_generated_images,
@@ -82,7 +82,7 @@ with app.app_context():
         is_reusable=True
     )
 
-    dalle_model.generate_images("warm-up", 1)
+    # dalle_model.generate_images("warm-up", 1)
     print("--> DALL-E Server is up and running!")
 
 
